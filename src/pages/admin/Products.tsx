@@ -4,9 +4,10 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase';
 import { Product } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
-import { Plus, Edit2, Trash2, X, Upload, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Upload, Search, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { generateProductDescription } from '../../services/gemini';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,7 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -117,6 +119,25 @@ export default function AdminProducts() {
       image: product.image
     });
     setIsModalOpen(true);
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!formData.name) {
+      toast.error('Please enter a product name first');
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const description = await generateProductDescription(formData.name, formData.category);
+      setFormData({ ...formData, description: description || '' });
+      toast.success('AI Description generated');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to generate description');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const filteredProducts = products.filter(p => 
@@ -284,7 +305,18 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-widest font-bold mb-2 text-gray-500">Description</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-gray-500">Description</label>
+                  <button 
+                    type="button"
+                    onClick={handleGenerateDescription}
+                    disabled={generating}
+                    className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-luxury-gold hover:text-luxury-black transition-colors disabled:opacity-50"
+                  >
+                    <Sparkles size={12} className={generating ? "animate-pulse" : ""} />
+                    {generating ? 'Generating...' : 'AI Generate'}
+                  </button>
+                </div>
                 <textarea 
                   required rows={4} className="luxury-input resize-none" 
                   value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
