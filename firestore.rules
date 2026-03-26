@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: uid, email, role, createdAt
+    //
+    // Collection: products
+    // Fields: name, price, description, image, category, stock, createdAt
+    //
+    // Collection: orders
+    // Fields: userId, products, totalPrice, customerName, phone, address, notes, status, createdAt
+    //
+    // Collection: carts
+    // Fields: items
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "rahilaabbasi7@gmail.com" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'createdAt']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'user'] &&
+             data.createdAt is string;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'price', 'description', 'image', 'category', 'stock', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.price is number && data.price >= 0 &&
+             data.description is string && data.description.size() < 5000 &&
+             data.image is string &&
+             data.category is string &&
+             data.stock is int && data.stock >= 0 &&
+             data.createdAt is string;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['userId', 'products', 'totalPrice', 'customerName', 'phone', 'address', 'status', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.products is list &&
+             data.totalPrice is number && data.totalPrice >= 0 &&
+             data.customerName is string && data.customerName.size() > 0 &&
+             data.phone is string &&
+             data.address is string &&
+             data.status in ['Ordered', 'Confirmed', 'Out for Delivery', 'Delivered'] &&
+             data.createdAt is string;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && (
+        request.resource.data.role == 'user' || 
+        request.auth.token.email == "rahilaabbasi7@gmail.com" ||
+        isAdmin()
+      );
+      allow update: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isValidOrder(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /carts/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
