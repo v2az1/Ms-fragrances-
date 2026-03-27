@@ -184,7 +184,12 @@ export default function AdminOrders() {
                 <div className="space-y-4">
                   {selectedOrder.products.map((item, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{item.name} <span className="text-[10px] text-gray-400">x{item.quantity}</span></span>
+                      <div className="flex flex-col">
+                        <span className="text-gray-600">{item.name} <span className="text-[10px] text-gray-400">x{item.quantity}</span></span>
+                        {item.selectedVariant && (
+                          <span className="text-[9px] text-luxury-gold font-bold uppercase tracking-widest">Size: {item.selectedVariant.size}</span>
+                        )}
+                      </div>
                       <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                   ))}

@@ -16,7 +16,7 @@ export default function ProductList() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categoryFilter || 'all');
 
-  const categories = ['all', 'floral', 'woody', 'oriental', 'fresh', 'citrus'];
+  const categories = ['all', 'Attar', 'Oudh', 'Perfume'];
 
   useEffect(() => {
     const fetchProducts = async () => {

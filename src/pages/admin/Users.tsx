@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { collection, getDocs, orderBy, query, doc, updateDoc } from 'firebase/firestore';
+import { db, auth } from '../../firebase';
 import { UserProfile } from '../../types';
 import { format } from 'date-fns';
-import { Search, Mail, Calendar, Shield } from 'lucide-react';
+import { Search, Mail, Calendar, Shield, UserPlus, UserMinus } from 'lucide-react';
+import { toast } from 'sonner';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -30,6 +35,38 @@ export default function AdminUsers() {
     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleToggleRole = async () => {
+    if (!selectedUser) return;
+    
+    setUpdating(true);
+    const newRole = selectedUser.role === 'admin' ? 'user' : 'admin';
+    
+    try {
+      await updateDoc(doc(db, 'users', selectedUser.uid), {
+        role: newRole
+      });
+      toast.success(`User ${selectedUser.email} is now an ${newRole}`);
+      fetchUsers();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to update user role');
+    } finally {
+      setUpdating(false);
+      setIsRoleModalOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const openRoleModal = (user: UserProfile) => {
+    // Prevent self-demotion for safety
+    if (user.uid === auth.currentUser?.uid) {
+      toast.error("You cannot change your own role");
+      return;
+    }
+    setSelectedUser(user);
+    setIsRoleModalOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -54,7 +91,7 @@ export default function AdminUsers() {
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Role</th>
                 <th className="px-6 py-4 font-medium">Joined Date</th>
-                <th className="px-6 py-4 font-medium">UID</th>
+                <th className="px-6 py-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -81,13 +118,37 @@ export default function AdminUsers() {
                       {format(new Date(user.createdAt), 'PPP')}
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-mono text-[10px] text-gray-400">{user.uid}</td>
+                  <td className="px-6 py-4">
+                    <button 
+                      onClick={() => openRoleModal(user)}
+                      className={`flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold px-4 py-2 rounded-lg transition-all ${
+                        user.role === 'admin' 
+                          ? 'text-red-500 hover:bg-red-50' 
+                          : 'text-luxury-gold hover:bg-luxury-gold/10'
+                      }`}
+                    >
+                      {user.role === 'admin' ? (
+                        <><UserMinus size={14} /> Demote</>
+                      ) : (
+                        <><UserPlus size={14} /> Promote</>
+                      )}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+        onConfirm={handleToggleRole}
+        title={selectedUser?.role === 'admin' ? 'Demote Admin' : 'Promote to Admin'}
+        message={`Are you sure you want to ${selectedUser?.role === 'admin' ? 'remove admin privileges from' : 'grant admin privileges to'} ${selectedUser?.email}?`}
+        confirmText={selectedUser?.role === 'admin' ? 'Demote' : 'Promote'}
+        variant={selectedUser?.role === 'admin' ? 'danger' : 'warning'}
+      />
     </div>
   );
 }

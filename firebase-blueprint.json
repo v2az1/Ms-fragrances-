@@ -24,7 +24,19 @@
         "image": { "type": "string" },
         "category": { "type": "string" },
         "stock": { "type": "integer" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "createdAt": { "type": "string", "format": "date-time" },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "size": { "type": "string" },
+              "price": { "type": "number" },
+              "stock": { "type": "integer" }
+            },
+            "required": ["size", "price", "stock"]
+          }
+        }
       },
       "required": ["name", "price", "description", "image", "category", "stock", "createdAt"]
     },

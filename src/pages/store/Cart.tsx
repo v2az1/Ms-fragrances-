@@ -43,7 +43,7 @@ export default function Cart() {
         <div className="lg:col-span-2 space-y-12">
           {items.map((item) => (
             <motion.div 
-              key={item.id}
+              key={`${item.id}-${item.selectedVariant?.size || 'default'}`}
               layout
               className="flex gap-8 pb-12 border-b border-luxury-gold/10"
             >
@@ -59,7 +59,14 @@ export default function Cart() {
               <div className="flex-grow flex flex-col justify-between py-2">
                 <div>
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-serif">{item.name}</h3>
+                    <div>
+                      <h3 className="text-xl font-serif">{item.name}</h3>
+                      {item.selectedVariant && (
+                        <p className="text-xs text-luxury-gold font-bold mt-1 uppercase tracking-widest">
+                          Size: {item.selectedVariant.size}
+                        </p>
+                      )}
+                    </div>
                     <p className="font-medium">{formatCurrency(item.price * item.quantity)}</p>
                   </div>
                   <p className="text-[10px] uppercase tracking-widest text-luxury-black/40 mb-4">{item.category}</p>
@@ -68,14 +75,14 @@ export default function Cart() {
                 <div className="flex justify-between items-end">
                   <div className="flex items-center border border-luxury-black/10">
                     <button 
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedVariant?.size)}
                       className="p-2 hover:text-luxury-gold transition-colors"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="w-10 text-center text-sm font-medium">{item.quantity}</span>
                     <button 
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedVariant?.size)}
                       className="p-2 hover:text-luxury-gold transition-colors"
                     >
                       <Plus size={14} />
@@ -83,7 +90,7 @@ export default function Cart() {
                   </div>
 
                   <button 
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.id, item.selectedVariant?.size)}
                     className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold"
                   >
                     <Trash2 size={14} />

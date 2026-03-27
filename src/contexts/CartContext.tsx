@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { CartItem, Product } from '../types';
+import { CartItem, Product, ProductVariant } from '../types';
 import { useAuth } from './AuthContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, variant?: ProductVariant) => void;
+  removeFromCart: (productId: string, variantSize?: string) => void;
+  updateQuantity: (productId: string, quantity: number, variantSize?: string) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -45,30 +45,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('ms_fragrances_cart', JSON.stringify(items));
     
     if (user) {
-      setDoc(doc(db, 'carts', user.uid), { items }, { merge: true });
+      // Sanitize items to remove undefined values for Firestore
+      const sanitizedItems = JSON.parse(JSON.stringify(items));
+      setDoc(doc(db, 'carts', user.uid), { items: sanitizedItems }, { merge: true });
     }
   }, [items, user]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, variant?: ProductVariant) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const existing = prev.find(
+        (item) => item.id === product.id && item.selectedVariant?.size === variant?.size
+      );
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id && item.selectedVariant?.size === variant?.size
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: 1, selectedVariant: variant, price: variant ? variant.price : product.price }];
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromCart = (productId: string, variantSize?: string) => {
+    setItems((prev) => prev.filter((item) => !(item.id === productId && item.selectedVariant?.size === variantSize)));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number, variantSize?: string) => {
     if (quantity < 1) return;
     setItems((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
+      prev.map((item) => (item.id === productId && item.selectedVariant?.size === variantSize ? { ...item, quantity } : item))
     );
   };
 

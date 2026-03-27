@@ -104,7 +104,12 @@ export default function UserOrders() {
                       </div>
                       <div>
                         <p className="text-sm font-serif">{item.name}</p>
-                        <p className="text-[10px] text-luxury-black/40 uppercase tracking-widest">Qty: {item.quantity}</p>
+                        {item.selectedVariant && (
+                          <p className="text-[10px] text-luxury-gold font-bold uppercase tracking-widest mt-1">
+                            Size: {item.selectedVariant.size}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-luxury-black/40 uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                       </div>
                     </div>
                   ))}

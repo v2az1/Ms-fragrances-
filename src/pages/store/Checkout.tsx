@@ -30,7 +30,7 @@ export default function Checkout() {
     try {
       const orderData = {
         userId: user.uid,
-        products: items,
+        products: JSON.parse(JSON.stringify(items)),
         totalPrice,
         customerName: formData.fullName,
         phone: formData.phone,
@@ -146,13 +146,18 @@ export default function Checkout() {
             
             <div className="space-y-6 mb-8 max-h-80 overflow-auto pr-4">
               {items.map((item) => (
-                <div key={item.id} className="flex gap-4">
+                <div key={`${item.id}-${item.selectedVariant?.size || 'default'}`} className="flex gap-4">
                   <div className="w-16 h-20 bg-luxury-cream border border-luxury-gold/10 flex-shrink-0">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <div className="flex-grow">
                     <h4 className="text-sm font-serif">{item.name}</h4>
-                    <p className="text-[10px] text-luxury-black/40 uppercase tracking-widest">Qty: {item.quantity}</p>
+                    {item.selectedVariant && (
+                      <p className="text-[10px] text-luxury-gold font-bold uppercase tracking-widest mt-1">
+                        Size: {item.selectedVariant.size}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-luxury-black/40 uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                     <p className="text-sm font-medium mt-1">{formatCurrency(item.price * item.quantity)}</p>
                   </div>
                 </div>

@@ -7,6 +7,12 @@ export interface UserProfile {
   createdAt: string;
 }
 
+export interface ProductVariant {
+  size: string; // e.g., "125ml"
+  price: number;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -16,10 +22,12 @@ export interface Product {
   category: string;
   stock: number;
   createdAt: string;
+  variants?: ProductVariant[];
 }
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedVariant?: ProductVariant;
 }
 
 export interface Order {

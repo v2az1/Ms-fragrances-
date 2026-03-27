@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase';
-import { Product } from '../../types';
+import { Product, ProductVariant } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
-import { Plus, Edit2, Trash2, X, Upload, Search, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Upload, Search, Sparkles, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { generateProductDescription } from '../../services/gemini';
@@ -24,9 +24,10 @@ export default function AdminProducts() {
     name: '',
     price: '',
     description: '',
-    category: 'floral',
+    category: 'Attar',
     stock: '',
-    image: ''
+    image: '',
+    variants: [] as ProductVariant[]
   });
 
   useEffect(() => {
@@ -69,7 +70,8 @@ export default function AdminProducts() {
       ...formData,
       price: parseFloat(formData.price),
       stock: parseInt(formData.stock),
-      createdAt: editingProduct ? editingProduct.createdAt : new Date().toISOString()
+      createdAt: editingProduct ? editingProduct.createdAt : new Date().toISOString(),
+      variants: formData.variants.length > 0 ? formData.variants : null
     };
 
     try {
@@ -82,7 +84,7 @@ export default function AdminProducts() {
       }
       setIsModalOpen(false);
       setEditingProduct(null);
-      setFormData({ name: '', price: '', description: '', category: 'floral', stock: '', image: '' });
+      setFormData({ name: '', price: '', description: '', category: 'Attar', stock: '', image: '', variants: [] });
       fetchProducts();
     } catch (error) {
       toast.error('Operation failed');
@@ -116,9 +118,30 @@ export default function AdminProducts() {
       description: product.description,
       category: product.category,
       stock: product.stock.toString(),
-      image: product.image
+      image: product.image,
+      variants: product.variants || []
     });
     setIsModalOpen(true);
+  };
+
+  const addVariant = () => {
+    setFormData({
+      ...formData,
+      variants: [...formData.variants, { size: '', price: parseFloat(formData.price) || 0, stock: parseInt(formData.stock) || 0 }]
+    });
+  };
+
+  const removeVariant = (index: number) => {
+    setFormData({
+      ...formData,
+      variants: formData.variants.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateVariant = (index: number, field: keyof ProductVariant, value: string | number) => {
+    const newVariants = [...formData.variants];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setFormData({ ...formData, variants: newVariants });
   };
 
   const handleGenerateDescription = async () => {
@@ -152,7 +175,7 @@ export default function AdminProducts() {
         <button 
           onClick={() => {
             setEditingProduct(null);
-            setFormData({ name: '', price: '', description: '', category: 'floral', stock: '', image: '' });
+            setFormData({ name: '', price: '', description: '', category: 'Attar', stock: '', image: '', variants: [] });
             setIsModalOpen(true);
           }}
           className="luxury-button flex items-center gap-2"
@@ -260,11 +283,9 @@ export default function AdminProducts() {
                     className="luxury-input" 
                     value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
                   >
-                    <option value="floral">Floral</option>
-                    <option value="woody">Woody</option>
-                    <option value="oriental">Oriental</option>
-                    <option value="fresh">Fresh</option>
-                    <option value="citrus">Citrus</option>
+                    <option value="Attar">Attar</option>
+                    <option value="Oudh">Oudh</option>
+                    <option value="Perfume">Perfume</option>
                   </select>
                 </div>
                 <div className="md:col-span-2">
@@ -321,6 +342,67 @@ export default function AdminProducts() {
                   required rows={4} className="luxury-input resize-none" 
                   value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
+              </div>
+
+              {/* Variants Section */}
+              <div className="space-y-4 border-t border-gray-100 pt-6">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Layers size={16} className="text-luxury-gold" />
+                    <h3 className="text-sm font-serif uppercase tracking-widest">Product Variants (Sizes)</h3>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={addVariant}
+                    className="text-[10px] uppercase tracking-widest font-bold text-luxury-gold hover:text-luxury-black transition-colors flex items-center gap-1"
+                  >
+                    <Plus size={12} /> Add Variant
+                  </button>
+                </div>
+
+                {formData.variants.length === 0 ? (
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest italic text-center py-4 border border-dashed border-gray-200 rounded">
+                    No variants added. Default price and stock will be used.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {formData.variants.map((variant, index) => (
+                      <div key={index} className="grid grid-cols-12 gap-3 items-end bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <div className="col-span-4">
+                          <label className="block text-[9px] uppercase tracking-widest font-bold mb-1 text-gray-400">Size (e.g. 100ml)</label>
+                          <input 
+                            type="text" required className="luxury-input py-1.5 text-xs" 
+                            value={variant.size} onChange={(e) => updateVariant(index, 'size', e.target.value)}
+                            placeholder="100ml"
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <label className="block text-[9px] uppercase tracking-widest font-bold mb-1 text-gray-400">Price</label>
+                          <input 
+                            type="number" required className="luxury-input py-1.5 text-xs" 
+                            value={variant.price} onChange={(e) => updateVariant(index, 'price', parseFloat(e.target.value))}
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <label className="block text-[9px] uppercase tracking-widest font-bold mb-1 text-gray-400">Stock</label>
+                          <input 
+                            type="number" required className="luxury-input py-1.5 text-xs" 
+                            value={variant.stock} onChange={(e) => updateVariant(index, 'stock', parseInt(e.target.value))}
+                          />
+                        </div>
+                        <div className="col-span-2 flex justify-end">
+                          <button 
+                            type="button"
+                            onClick={() => removeVariant(index)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button type="submit" className="luxury-button w-full py-4 shadow-lg shadow-luxury-black/10">

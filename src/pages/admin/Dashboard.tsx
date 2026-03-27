@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   collection, 
   getDocs, 
@@ -40,7 +41,7 @@ export default function AdminDashboard() {
           name: "Midnight Rose",
           price: 120,
           description: "A mysterious and seductive blend of dark rose, patchouli, and vanilla. Perfect for evening wear.",
-          category: "floral",
+          category: "Perfume",
           stock: 50,
           image: "https://images.unsplash.com/photo-1592914610354-fd354ea45e48?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -49,7 +50,7 @@ export default function AdminDashboard() {
           name: "Sandalwood Drift",
           price: 95,
           description: "Warm, creamy sandalwood paired with hints of cardamom and cedar. A grounding unisex scent.",
-          category: "woody",
+          category: "Oudh",
           stock: 35,
           image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -58,7 +59,7 @@ export default function AdminDashboard() {
           name: "Golden Amber",
           price: 150,
           description: "Rich amber, labdanum, and sweet tonka bean. An opulent oriental fragrance that lasts all day.",
-          category: "oriental",
+          category: "Attar",
           stock: 20,
           image: "https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -67,7 +68,7 @@ export default function AdminDashboard() {
           name: "Ocean Mist",
           price: 85,
           description: "Crisp sea salt, ozone, and a touch of white jasmine. Refreshing like a morning walk on the beach.",
-          category: "fresh",
+          category: "Perfume",
           stock: 60,
           image: "https://images.unsplash.com/photo-1512789675414-521645811e4f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -76,7 +77,7 @@ export default function AdminDashboard() {
           name: "Velvet Oud",
           price: 210,
           description: "Rare Cambodian oud softened with damask rose and leather. The pinnacle of luxury perfumery.",
-          category: "oriental",
+          category: "Oudh",
           stock: 15,
           image: "https://images.unsplash.com/photo-1585120040315-2241b774ad0f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -85,7 +86,7 @@ export default function AdminDashboard() {
           name: "Citrus Bloom",
           price: 75,
           description: "Zesty bergamot and neroli balanced with a clean musk base. Bright, energetic, and uplifting.",
-          category: "citrus",
+          category: "Perfume",
           stock: 45,
           image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
           name: "Lavender Dreams",
           price: 65,
           description: "Pure French lavender mixed with sweet tonka bean and a hint of vanilla. The ultimate relaxation scent.",
-          category: "floral",
+          category: "Perfume",
           stock: 40,
           image: "https://images.unsplash.com/photo-1592914610354-fd354ea45e48?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -103,7 +104,7 @@ export default function AdminDashboard() {
           name: "Spiced Cedar",
           price: 110,
           description: "Robust cedarwood infused with black pepper, cinnamon, and a touch of leather. Bold and sophisticated.",
-          category: "woody",
+          category: "Oudh",
           stock: 25,
           image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
           name: "White Musk",
           price: 55,
           description: "A clean, powdery musk with subtle notes of lily and iris. A timeless classic for everyday elegance.",
-          category: "fresh",
+          category: "Attar",
           stock: 100,
           image: "https://images.unsplash.com/photo-1512789675414-521645811e4f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -121,7 +122,7 @@ export default function AdminDashboard() {
           name: "Jasmine Night",
           price: 135,
           description: "Intoxicating night-blooming jasmine paired with exotic ylang-ylang and a base of creamy sandalwood.",
-          category: "floral",
+          category: "Perfume",
           stock: 30,
           image: "https://images.unsplash.com/photo-1592914610354-fd354ea45e48?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -130,7 +131,7 @@ export default function AdminDashboard() {
           name: "Bergamot Breeze",
           price: 80,
           description: "Sparkling Italian bergamot combined with green tea and a splash of lemon. Crisp and revitalizing.",
-          category: "citrus",
+          category: "Perfume",
           stock: 55,
           image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -139,7 +140,7 @@ export default function AdminDashboard() {
           name: "Vanilla Sky",
           price: 90,
           description: "Creamy Madagascar vanilla with a hint of toasted almond and white musk. Comforting and sweet.",
-          category: "oriental",
+          category: "Attar",
           stock: 48,
           image: "https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -148,7 +149,7 @@ export default function AdminDashboard() {
           name: "Forest Rain",
           price: 105,
           description: "The scent of damp earth and pine needles after a heavy rain. Fresh, green, and invigorating.",
-          category: "woody",
+          category: "Oudh",
           stock: 32,
           image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -157,7 +158,7 @@ export default function AdminDashboard() {
           name: "Peony Petals",
           price: 70,
           description: "Soft pink peonies and juicy red apples on a base of suede. Feminine, light, and romantic.",
-          category: "floral",
+          category: "Perfume",
           stock: 65,
           image: "https://images.unsplash.com/photo-1592914610354-fd354ea45e48?auto=format&fit=crop&q=80&w=800",
           createdAt: new Date().toISOString()
@@ -256,7 +257,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 bg-white/80 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden rounded-xl">
           <div className="p-6 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-serif text-xl text-luxury-black">Recent Orders</h2>
-            <button className="text-[10px] uppercase tracking-widest font-bold text-luxury-gold hover:underline">View All</button>
+            <Link to="/admin/orders" className="text-[10px] uppercase tracking-widest font-bold text-luxury-gold hover:underline">View All</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm min-w-[500px]">
@@ -290,10 +291,15 @@ export default function AdminDashboard() {
         <div className="bg-white/80 backdrop-blur-md border border-white/10 shadow-xl p-6 rounded-xl">
           <h2 className="font-serif text-xl text-luxury-black mb-6">Quick Actions</h2>
           <div className="space-y-4">
-            <button className="w-full luxury-button py-4 text-[10px] shadow-lg shadow-luxury-black/10">Add New Product</button>
-            <button className="w-full border border-luxury-black py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-luxury-black hover:text-white transition-all duration-300">
+            <Link to="/admin/products" className="block w-full luxury-button py-4 text-[10px] shadow-lg shadow-luxury-black/10 text-center">
+              Add New Product
+            </Link>
+            <Link to="/admin/orders" className="block w-full border border-luxury-black py-4 text-[10px] uppercase tracking-widest font-bold hover:bg-luxury-black hover:text-white transition-all duration-300 text-center">
               Manage Orders
-            </button>
+            </Link>
+            <Link to="/admin/users" className="block w-full border border-luxury-black/10 py-4 text-[10px] uppercase tracking-widest font-bold hover:border-luxury-gold transition-all duration-300 text-center">
+              Manage Users
+            </Link>
             <div className="pt-6 mt-6 border-t border-gray-100">
               <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4">System Status</h3>
               <div className="flex items-center gap-2 text-sm text-green-600 font-medium">

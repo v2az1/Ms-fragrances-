@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Menu, X, MoreVertical } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { auth } from '../firebase';
@@ -11,13 +11,23 @@ export default function Navbar() {
   const { totalItems } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isDesktopMenuOpen && !(e.target as HTMLElement).closest('.desktop-menu-container')) {
+        setIsDesktopMenuOpen(false);
+      }
+    };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDesktopMenuOpen]);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -44,9 +54,29 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-12 text-xs uppercase tracking-widest font-medium">
+        <div className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-medium relative">
           <Link to="/" className="hover:text-luxury-gold transition-colors">Home</Link>
-          <Link to="/products" className="hover:text-luxury-gold transition-colors">Collection</Link>
+          <Link to="/products" className="hover:text-luxury-gold transition-colors">All Collection</Link>
+          
+          <div className="relative desktop-menu-container">
+            <button 
+              onClick={() => setIsDesktopMenuOpen(!isDesktopMenuOpen)}
+              className="hover:text-luxury-gold transition-colors flex items-center"
+            >
+              <Menu size={20} />
+            </button>
+            
+            {isDesktopMenuOpen && (
+              <div className="absolute top-full right-0 mt-4 bg-white border border-luxury-gold/10 shadow-xl p-6 flex flex-col gap-4 min-w-[200px] text-left animate-in fade-in slide-in-from-top-2">
+                <Link to="/" onClick={() => setIsDesktopMenuOpen(false)} className="hover:text-luxury-gold transition-colors">Home</Link>
+                <Link to="/products" onClick={() => setIsDesktopMenuOpen(false)} className="hover:text-luxury-gold transition-colors">All Collection</Link>
+                <Link to="/products?category=Attar" onClick={() => setIsDesktopMenuOpen(false)} className="hover:text-luxury-gold transition-colors">Attar</Link>
+                <Link to="/products?category=Oudh" onClick={() => setIsDesktopMenuOpen(false)} className="hover:text-luxury-gold transition-colors">Oud</Link>
+                <Link to="/products?category=Perfume" onClick={() => setIsDesktopMenuOpen(false)} className="hover:text-luxury-gold transition-colors">Perfumes</Link>
+              </div>
+            )}
+          </div>
+
           {isAdmin && (
             <Link to="/admin" className="text-luxury-gold font-bold">Admin Panel</Link>
           )}
@@ -84,7 +114,10 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-luxury-gold/10 p-8 flex flex-col gap-6 text-center text-xs uppercase tracking-widest font-medium animate-in fade-in slide-in-from-top-4">
           <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
-          <Link to="/products" onClick={() => setIsMenuOpen(false)}>Collection</Link>
+          <Link to="/products" onClick={() => setIsMenuOpen(false)}>All Collection</Link>
+          <Link to="/products?category=Attar" onClick={() => setIsMenuOpen(false)}>Attar</Link>
+          <Link to="/products?category=Oudh" onClick={() => setIsMenuOpen(false)}>Oud</Link>
+          <Link to="/products?category=Perfume" onClick={() => setIsMenuOpen(false)}>Perfumes</Link>
           {user && <Link to="/profile" onClick={() => setIsMenuOpen(false)}>My Profile</Link>}
           {user && <Link to="/orders" onClick={() => setIsMenuOpen(false)}>My Orders</Link>}
           {isAdmin && <Link to="/admin" onClick={() => setIsMenuOpen(false)}>Admin Panel</Link>}
