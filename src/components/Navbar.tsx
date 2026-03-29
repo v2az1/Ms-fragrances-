@@ -118,7 +118,6 @@ export default function Navbar() {
           <Link to="/products?category=Attar" onClick={() => setIsMenuOpen(false)}>Attar</Link>
           <Link to="/products?category=Oudh" onClick={() => setIsMenuOpen(false)}>Oud</Link>
           <Link to="/products?category=Perfume" onClick={() => setIsMenuOpen(false)}>Perfumes</Link>
-          {user && <Link to="/profile" onClick={() => setIsMenuOpen(false)}>My Profile</Link>}
           {user && <Link to="/orders" onClick={() => setIsMenuOpen(false)}>My Orders</Link>}
           {isAdmin && <Link to="/admin" onClick={() => setIsMenuOpen(false)}>Admin Panel</Link>}
         </div>

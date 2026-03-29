@@ -23,7 +23,7 @@ export default function AdminUsers() {
     try {
       const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
-      setUsers(snapshot.docs.map(doc => ({ ...doc.data() } as UserProfile)));
+      setUsers(snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile)));
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
