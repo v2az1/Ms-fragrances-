@@ -57,6 +57,21 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "products", "totalPrice", "customerName", "phone", "address", "status", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Product review and rating.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "userId", "userName", "rating", "comment", "createdAt"]
     }
   },
   "firestore": {
@@ -71,6 +86,10 @@
     "/orders/{orderId}": {
       "schema": "Order",
       "description": "Customer orders."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Product reviews."
     }
   }
 }

@@ -8,6 +8,7 @@ import { useCart } from '../../contexts/CartContext';
 import { motion } from 'motion/react';
 import { ShoppingBag, ArrowLeft, ShieldCheck, Truck, RefreshCcw, Layers } from 'lucide-react';
 import { toast } from 'sonner';
+import ProductReviews from '../../components/ProductReviews';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -155,6 +156,9 @@ export default function ProductDetail() {
           </div>
         </motion.div>
       </div>
+
+      {/* Reviews Section */}
+      <ProductReviews productId={product.id} />
     </div>
   );
 }

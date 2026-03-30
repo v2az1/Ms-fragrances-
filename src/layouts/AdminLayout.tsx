@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Menu, X as CloseIcon } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Menu, X as CloseIcon, Star } from 'lucide-react';
 import { auth } from '../firebase';
 import { cn } from '../lib/utils';
 import WhatsAppButton from '../components/WhatsAppButton';
@@ -20,6 +20,7 @@ export default function AdminLayout() {
     { icon: Package, label: 'Products', path: '/admin/products' },
     { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
     { icon: Users, label: 'Users', path: '/admin/users' },
+    { icon: Star, label: 'Reviews', path: '/admin/reviews' },
   ];
 
   return (

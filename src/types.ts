@@ -42,3 +42,13 @@ export interface Order {
   status: 'Ordered' | 'Confirmed' | 'Out for Delivery' | 'Delivered';
   createdAt: string;
 }
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}

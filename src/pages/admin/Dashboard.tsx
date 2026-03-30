@@ -18,7 +18,8 @@ import {
   Users, 
   Package, 
   TrendingUp,
-  Database
+  Database,
+  Star
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -27,7 +28,8 @@ export default function AdminDashboard() {
     totalOrders: 0,
     totalProducts: 0,
     totalUsers: 0,
-    revenue: 0
+    revenue: 0,
+    totalReviews: 0
   });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -187,6 +189,7 @@ export default function AdminDashboard() {
         const ordersSnap = await getDocs(collection(db, 'orders'));
         const productsSnap = await getDocs(collection(db, 'products'));
         const usersSnap = await getDocs(collection(db, 'users'));
+        const reviewsSnap = await getDocs(collection(db, 'reviews'));
 
         const orders = ordersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
         const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
@@ -195,7 +198,8 @@ export default function AdminDashboard() {
           totalOrders: ordersSnap.size,
           totalProducts: productsSnap.size,
           totalUsers: usersSnap.size,
-          revenue: totalRevenue
+          revenue: totalRevenue,
+          totalReviews: reviewsSnap.size
         });
 
         const recentQ = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(5));
@@ -215,7 +219,7 @@ export default function AdminDashboard() {
     { label: 'Total Revenue', value: formatCurrency(stats.revenue), icon: TrendingUp, color: 'text-green-600' },
     { label: 'Total Orders', value: stats.totalOrders, icon: ShoppingBag, color: 'text-blue-600' },
     { label: 'Total Products', value: stats.totalProducts, icon: Package, color: 'text-purple-600' },
-    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-orange-600' },
+    { label: 'Total Reviews', value: stats.totalReviews, icon: Star, color: 'text-yellow-600' },
   ];
 
   if (loading) return <div>Loading dashboard...</div>;
@@ -299,6 +303,9 @@ export default function AdminDashboard() {
             </Link>
             <Link to="/admin/users" className="block w-full border border-luxury-black/10 py-4 text-[10px] uppercase tracking-widest font-bold hover:border-luxury-gold transition-all duration-300 text-center">
               Manage Users
+            </Link>
+            <Link to="/admin/reviews" className="block w-full border border-luxury-black/10 py-4 text-[10px] uppercase tracking-widest font-bold hover:border-luxury-gold transition-all duration-300 text-center">
+              Manage Reviews
             </Link>
             <div className="pt-6 mt-6 border-t border-gray-100">
               <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4">System Status</h3>

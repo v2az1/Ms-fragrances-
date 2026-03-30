@@ -17,6 +17,9 @@ service cloud.firestore {
     // Collection: carts
     // Fields: items
     //
+    // Collection: reviews
+    // Fields: productId, userId, userName, rating, comment, createdAt
+    //
     // ===============================================================
 
     // Helper Functions
@@ -68,6 +71,16 @@ service cloud.firestore {
              data.createdAt is string;
     }
 
+    function isValidReview(data) {
+      return data.keys().hasAll(['productId', 'userId', 'userName', 'rating', 'comment', 'createdAt']) &&
+             data.productId is string &&
+             data.userId == request.auth.uid &&
+             data.userName is string && data.userName.size() > 0 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.comment is string && data.comment.size() > 0 && data.comment.size() < 2000 &&
+             data.createdAt is string;
+    }
+
     // Rules
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
@@ -93,6 +106,12 @@ service cloud.firestore {
 
     match /carts/{userId} {
       allow read, write: if isOwner(userId);
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidReview(request.resource.data);
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
     }
   }
 }

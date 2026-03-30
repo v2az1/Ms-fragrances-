@@ -23,6 +23,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
 import AdminUsers from './pages/admin/Users';
+import AdminReviews from './pages/admin/Reviews';
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, profile, loading, isAdmin } = useAuth();
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="reviews" element={<AdminReviews />} />
             </Route>
           </Routes>
         </BrowserRouter>
