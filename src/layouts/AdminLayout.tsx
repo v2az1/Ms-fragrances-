@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Menu, X as CloseIcon } from 'lucide-react';
 import { auth } from '../firebase';
 import { cn } from '../lib/utils';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -101,6 +102,7 @@ export default function AdminLayout() {
           <Outlet />
         </div>
       </main>
+      <WhatsAppButton />
     </div>
   );
 }
